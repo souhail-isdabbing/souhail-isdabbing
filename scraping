@@ -1,0 +1,141 @@
+import os
+import wget
+import urllib.request
+import requests
+from bs4 import BeautifulSoup
+import sys
+from pprint import pprint
+import shutil # to save it locally
+
+def link(genre): #transforms the board name, click on a board to understand the purpose of the function ps:not all board names available
+  genre=genre.lower()
+  if genre=='anime&manga':
+    return 'a'
+    
+  if genre=='technology':
+    return 'g'
+    
+  if genre=='transportation':
+    return 'n'
+    
+  if genre=='sports':
+    return 'sp'
+
+  if genre=='anime/cute':
+    return'c'
+
+  if genre=='anime/wallpapers':
+    return'w'
+
+  if genre=='mecha':
+    return 'm'
+
+  if genre=='cosplay&egl':
+    return 'cgl'
+
+  if genre=='cute/male':
+    return 'cm'
+
+  if genre=='otaku_culture':
+    return 'jp'
+
+  if genre=='virtual_youtubers':
+    return 'vt'
+
+  if genre=='video_games':
+    return 'v'
+
+  if genre=='video_games_generals':
+    return 'vg'
+
+  if genre=='video_games_multiplayer':
+    return 'vm'
+
+  if genre=='video_games_mobile':
+    return 'vmg'
+  if genre=='pokemon':
+    return 'vp'
+  if genre=='retro_games':
+    return 'vr'
+  if genre=='video_games_rpg':
+    return 'vrpg'
+  if genre=='photography':
+    return 'p'
+  if genre=='weapons':
+    return 'k'
+  if genre=='comics&cartoons':
+    return 'co'
+  if genre=='television&film':
+    return 'tv'
+  if genre=='auto':
+    return 'o'
+  if genre=='animals&nature':
+    return'an'
+  if genre=='traditional_games':
+    return 'tg'
+  if genre=='hentai':
+    return 'h'
+  if genre=='hardcore':
+    return 'hc'
+  if genre=='sexy_beautiful_women':
+    return 's'
+  if genre=='wallpapers':
+    return 'wg'
+
+  else:
+    return 'empty'
+ 
+def pagenum(num):
+  num=int(num)
+  if num<=1:
+    return ''
+  else:
+    return num
+
+res=requests.get(f'http://boards.4channel.org/{link(sys.argv[1])}/{pagenum(sys.argv[2])}')
+soup=BeautifulSoup(res.text,'html.parser')
+images=soup.find_all('img',loading='lazy')
+
+urls=[i['src'].replace('s.jpg','.jpg') for i in images]
+
+urls=[i.replace('//','https://') for i in urls]
+
+
+
+directory=f'{link(sys.argv[1])}({pagenum(sys.argv[2])})'
+
+parent_dir='C:\\Users\\SOUHAIL\\Desktop\\scraper'
+
+path=os.path.join(parent_dir,directory)
+
+
+os.mkdir(path)#makes directory
+
+def filing(link): #extracts file name and extension only
+  if len(link)==41:
+    link=link[24:]
+    return link
+  if len(link)==40:
+    link=link[23:]
+    return link
+  elif len(link)==39:
+    link=link[22:]
+    return link
+  elif len(link)==38:
+    link=link[21:]
+    return link
+
+
+for url in urls:
+
+  r = requests.get(url, stream = True) #checks if the links are valid
+
+  if r.status_code == 200: 
+    r.raw.decode_content = True
+    wget.download(url) #downloads the link's content
+    source=f"C:\\Users\\SOUHAIL\\Desktop\\scraper\\{filing(url)}"
+    destination=path
+    shutil.move(source,path)#moves each image downloaded to a directory
+    print('Image sucessfully Downloaded')
+  else:
+      pass
